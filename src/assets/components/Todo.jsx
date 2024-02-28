@@ -1,5 +1,4 @@
-import React, { useEffect, useRef, useState } from "react";
-import "./Todo.css";
+
 import { FaTrash } from "react-icons/fa";
 import { FaPlus } from "react-icons/fa";
 import { FaEdit } from "react-icons/fa";
@@ -12,6 +11,7 @@ import {
   updateDoc,
 } from "firebase/firestore";
 import { db } from "../../firebase config";
+import { useState, useEffect } from "react";
 
 const Todo = () => {
   const [todos, setTodos] = useState([]);
@@ -24,12 +24,12 @@ const Todo = () => {
     const newVAl = prompt("edit task");
     const newData = { taskName: newVAl };
     try {
-      if(!newVAl){return null}
-      else{
+      if (!newVAl) { return null }
+      else {
         await updateDoc(userDoc, newData);
       }
-        
-      
+
+
     } catch (error) {
       console.log(error);
     }
@@ -51,7 +51,8 @@ const Todo = () => {
     if (!newTask) {
       alert("Enter todo");
     } else {
-      await addDoc(dbRef, { taskName: newTask });
+      await addDoc(dbRef, { taskName: newTask })
+      setNewTask('');
     }
   };
 
@@ -73,40 +74,53 @@ const Todo = () => {
 
   return (
     <>
-      <div className="container">
-        <h1>Task for Today!</h1>
+      <div className="h-screen w-screen p-4 bg-gradient-to-r from-[#2f80ed] to-[#1cb5e0] flex items-center justify-center">
+        <div className="bg-slate-200 max-w-[500px] w-full m-auto rounded-md shadow-xl p-5">
+          <form className=" flex flex-col">
+            <h1 className="text-3xl text-center text-slate-800 font-bold">Task for Today!</h1>
+            <div className="flex gap-4 my-4">
+              <input
+                className="px-4 py-4 rounded-md text-black placeholder-slate-500 outline-none text-xl w-full"
+                type="text"
+                placeholder="add task.."
+                onChange={(e) => {
+                  setNewTask(e.target.value);
+                }}
+                value={newTask}
+              />
+              <button className=" bg-gradient-to-r from-[#2f80ed] to-[#1cb5e0] rounded-md text-slate-100 p-2" type="submit" onClick={addTask} >
+                <FaPlus size={40} />
+              </button>
+            </div>
+          </form>
 
-        <div className="input_btn">
-          <input
-            type="text"
-            placeholder="add task.."
-            onChange={(e) => {
-              setNewTask(e.target.value);
-            }}
-            value={newTask}
-          />
-          <button type="submit" onClick={addTask}>
-            <FaPlus />
-          </button>
+          {todos.map((task) => {
+            return (
+            <div className="flex items-center justify-between bg-slate-300 my-4 p-4">
+                <p className="text-xl">{task.taskName}</p>
+                <div className="flex gap-2 text-slate-800 ">
+                <FaEdit
+                className="cursor-pointer"
+                size={20}
+                  onClick={() => {
+                    ubdateTask(task.id);
+                  }}
+                />
+                <FaTrash className="cursor-pointer" size={20} onClick={() => deleteTask(task.id)} />
+                </div>
+            </div>
+
+            );
+          })}
+
+
         </div>
 
-        {todos.map((task) => {
-          return (
-            <>
-              <div className="li">
-                <p>{task.taskName}</p>
-                <div className="icons">
-                  <FaEdit
-                    onClick={() => {
-                      ubdateTask(task.id);
-                    }}
-                  />
-                  <FaTrash onClick={() => deleteTask(task.id)} />
-                </div>
-              </div>
-            </>
-          );
-        })}
+
+
+
+
+
       </div>
     </>
   );
